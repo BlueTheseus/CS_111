@@ -1,20 +1,22 @@
 # A Kernel Seedling
-TODO: intro
+The following is a kernel module which creates a file `/proc/count` containing the number of active processes.
 
 ## Building
 ```shell
-TODO: cmd for build
+make
 ```
 
 ## Running
+Activate the module with:
 ```shell
-TODO: cmd for running binary
+sudo insmod proc_count.ko
 ```
-TODO: results?
+
+You can now find a file `/proc/count` with a number representing the number of processes.
 
 ## Cleaning Up
 ```shell
-TODO: cmd for cleaning the built binary
+make clean
 ```
 
 ## Testing
@@ -30,4 +32,5 @@ It should match release numbers as seen on https://www.kernel.org/.
 ```shell
 uname -r -s -v
 ```
-TODO: kernel ver?
+returned that the module was tested with the following kernel:
+`Linux 5.14.8-arch-1-1 #1 SMP PREEMPT Sun, 26 Sep 2021 19:36:15 +0000`
