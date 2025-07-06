@@ -1,8 +1,8 @@
 #!/bin/sh
 
-read -p 'UID: ' UID
+read -p 'UID: '
 
-tar czvf "$UID.tar.gz" \
+tar czvf "$REPLY.tar.gz" \
 	Makefile \
 	proc_count.c \
 	README.md \
