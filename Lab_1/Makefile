@@ -1,10 +1,17 @@
-OBJS = pipe.o
+ifneq ($(KERNELRELEASE),)
+obj-m := proc_count.o
+else
+KDIR ?= /lib/modules/`uname -r`/build
 
-CFLAGS = -std=c17 -Wpedantic -Wall -O2 -pipe -fno-plt
-LDFLAGS = -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
+default:
+	$(MAKE) -C $(KDIR) M=$$PWD modules
 
-pipe: ${OBJS}
+modules_install:
+	$(MAKE) -C $(KDIR) M=$$PWD modules_install
 
-.PHONY: clean
+install:
+	$(MAKE) -C $(KDIR) M=$$PWD install
+
 clean:
-	rm -f ${OBJS} pipe
+	$(MAKE) -C $(KDIR) M=$$PWD clean
+endif
