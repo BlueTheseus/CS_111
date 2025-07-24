@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
 		case 0:  // CHILD
 			if (close(pipefd[0]) == -1) {
-				fprintf(stderr, "error closing unused pipe input");
+				fprintf(stderr, "error closing unused readable pipe");
 				exit(1);
 			}
 			dup2(pipefd[1], STDOUT_FILENO); // Link stdout to write to the pipe
@@ -60,18 +60,48 @@ int main(int argc, char *argv[])
 			exit(exit_status);
 
 		default: // PARENT
+			/*if (close(pipefd[1]) == -1) {
+				fprintf(stderr, "error closing unused writeable pipe");
+				exit(1);
+			}*/
+			//dup2(pipefd[0], STDIN_FILENO);
+			wait(&exit_status);
+			//execlp("cat", "cat", (char *) NULL);
+	}
+
+	// Have last program get input from pipe
+	childPID = fork();
+	switch (childPID) {
+		case -1: // FORK ERROR
+			fprintf(stderr, "fork failed\n");
+			exit(1);
+
+		case 0:  // CHILD
 			if (close(pipefd[1]) == -1) {
-				fprintf(stderr, "error closing unused pipe output");
+				fprintf(stderr, "error closing unused writeable pipe");
 				exit(1);
 			}
-			dup2(pipefd[0], STDIN_FILENO);
+			dup2(pipefd[0], STDIN_FILENO); // Link stdin to read from the pipe
+			exit_status = execlp(argv[argc-1], argv[argc-1], (char *) NULL);
+			fprintf(stderr, "execlp failed\n");
+			exit(exit_status);
+
+		default: // PARENT
+			if (close(pipefd[0]) == -1) {
+				fprintf(stderr, "error closing unused readable pipe");
+				exit(1);
+			}
+			if (close(pipefd[1]) == -1) {
+				fprintf(stderr, "error closing unused writeable pipe");
+				exit(1);
+			}
 			wait(&exit_status);
-			execlp("cat", "cat", (char *) NULL);
+			return WEXITSTATUS(exit_status);
 	}
 
 
 
-	/*for (int i = 1; i < argc; i++) {
+	/*for (int i = 1; i < argc-1; i++) {
 		printf("\nargv[%d]: %s\n", i, argv[i]);
 
 		// Create a pipe
