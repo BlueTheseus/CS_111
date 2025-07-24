@@ -15,8 +15,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	};
 
-	printf("hello from PID %d\n", (int) getpid());
-
 	// Only one command to run
 	if (argc == 2) {
 		childPID = fork();
@@ -60,14 +58,40 @@ int main(int argc, char *argv[])
 			exit(exit_status);
 
 		default: // PARENT
-			/*if (close(pipefd[1]) == -1) {
-				fprintf(stderr, "error closing unused writeable pipe");
-				exit(1);
-			}*/
-			//dup2(pipefd[0], STDIN_FILENO);
 			wait(&exit_status);
-			//execlp("cat", "cat", (char *) NULL);
 	}
+
+	// Handle pipes for all middle programs
+	/*for (int i = 1; i < argc-1; i++) {
+
+		// Create a pipe
+		// SAVE READ
+		if (pipe(pipefd) == -1) {
+			fprintf(stderr, "pipe error");
+			exit(1);
+		}
+
+		// Fork
+		childPID = fork();
+		switch (childPID) {
+			case -1: // FORK ERROR
+				fprintf(stderr, "fork failed\n");
+				exit(1);
+
+			case 0:  // CHILD
+				if (close(pipefd[1]) == -1) {
+					fprintf(stderr, "error closing unused write-end");
+					exit(1);
+				}
+				dup2(pipefd[]);
+				int return_status = execlp(argv[i], argv[i], (char*) NULL);
+				fprintf(stderr, "execlp failed\n");
+				exit(return_status);
+
+			default: // PARENT
+				wait(&status);
+		}
+	}*/
 
 	// Have last program get input from pipe
 	childPID = fork();
@@ -98,41 +122,5 @@ int main(int argc, char *argv[])
 			wait(&exit_status);
 			return WEXITSTATUS(exit_status);
 	}
-
-
-
-	/*for (int i = 1; i < argc-1; i++) {
-		printf("\nargv[%d]: %s\n", i, argv[i]);
-
-		// Create a pipe
-		if (pipe(pipefd) == -1) {
-			fprintf(stderr, "pipe error");
-			exit(1);
-		}
-
-		// Fork
-		childPID = fork();
-		switch (childPID) {
-			case -1: // FORK ERROR
-				fprintf(stderr, "fork failed\n");
-				exit(1);
-
-			case 0:  // CHILD
-				if (close(pipefd[1]) == -1) {
-					fprintf(stderr, "error closing unused write-end");
-					exit(1);
-				}
-				dup2(pipefd[]);
-				int return_status = execlp(argv[i], argv[i], (char*) NULL);
-				fprintf(stderr, "execlp failed\n");
-				exit(return_status);
-
-			default: // PARENT
-				wait(&status);
-		}
-	}*/
-
-	printf("\nall commands finished\n");
-
 	return 0;
 }
