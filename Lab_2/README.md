@@ -1,17 +1,47 @@
-## UID: 123456789
+## UID: 805796976
+
 
 ## Pipe Up
 
-One sentence description
+Here is a program which allows you to string together the output of one command
+to the input of the next supplied command.
+
 
 ## Building
 
-Explain briefly how to build your program
+To build, run `make`. An executable file named `pipe` will be created in the
+current directory.
+
 
 ## Running
 
-Show an example run of your program, using at least two additional arguments, and what to expect
+```
+use: pipe [commands]
+```
+
+Any non-zero amount of commands to be piped together is accepted. Below you can
+find some examples of running the command on this directory right after it was
+built.
+
+Example of no output:
+```shell
+# pipe
+pipe: provide at least one command.
+```
+
+Example output of one command:
+```shell
+# pipe ls
+Makefile  pipe  pipe.c  pipe.o  README.md  test_lab1.py
+```
+
+Example output of two commands:
+```shell
+# pipe ls wc
+      6       6      51
+```
+
 
 ## Cleaning up
 
-Explain briefly how to clean up all binary files
+To clean up all binary files, run `make clean`.
