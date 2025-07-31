@@ -24,9 +24,10 @@ struct process
   /* End of "Additional fields here" */
 };
 
-TAILQ_HEAD(process_list, process);
+TAILQ_HEAD(process_list, process); /* brains of the list -- called process_list */
 
 u32 next_int(const char **data, const char *data_end)
+/* returns next integer from a sequence of bytes */
 {
   u32 current = 0;
   bool started = false;
@@ -63,6 +64,7 @@ u32 next_int(const char **data, const char *data_end)
 }
 
 u32 next_int_from_c_str(const char *data)
+/* also returns next integer but from a string */
 {
   char c;
   u32 i = 0;
@@ -91,16 +93,17 @@ u32 next_int_from_c_str(const char *data)
 void init_processes(const char *path,
                     struct process **process_data,
                     u32 *process_size)
+/* creates an array of process structs */
 {
-  int fd = open(path, O_RDONLY);
+  int fd = open(path, O_RDONLY); /* open provided file */
   if (fd == -1)
   {
-    int err = errno;
+    int err = errno;             /* error opening file */
     perror("open");
     exit(err);
   }
 
-  struct stat st;
+  struct stat st;               /* get file status in st */
   if (fstat(fd, &st) == -1)
   {
     int err = errno;
@@ -108,7 +111,7 @@ void init_processes(const char *path,
     exit(err);
   }
 
-  u32 size = st.st_size;
+  u32 size = st.st_size; /* map some memory for the file? */
   const char *data_start = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
   if (data_start == MAP_FAILED)
   {
@@ -122,6 +125,7 @@ void init_processes(const char *path,
 
   *process_size = next_int(&data, data_end);
 
+  /* allocates an array of process structs */
   *process_data = calloc(sizeof(struct process), *process_size);
   if (*process_data == NULL)
   {
@@ -130,6 +134,7 @@ void init_processes(const char *path,
     exit(err);
   }
 
+  /* provide each process struct with its proper values */
   for (u32 i = 0; i < *process_size; ++i)
   {
     (*process_data)[i].pid = next_int(&data, data_end);
@@ -137,8 +142,8 @@ void init_processes(const char *path,
     (*process_data)[i].burst_time = next_int(&data, data_end);
   }
 
-  munmap((void *)data, size);
-  close(fd);
+  munmap((void *)data, size);  /* clean up the map */
+  close(fd);                   /* close the file */
 }
 
 int main(int argc, char *argv[])
