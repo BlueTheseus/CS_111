@@ -135,6 +135,7 @@ void init_processes(const char *path,
   }
 
   /* provide each process struct with its proper values */
+  /* ordering of numbers in file represents: PID, arrive time, time to completion */
   for (u32 i = 0; i < *process_size; ++i)
   {
     (*process_data)[i].pid = next_int(&data, data_end);
@@ -168,6 +169,10 @@ int main(int argc, char *argv[])
   
   /* End of "Your code here" */
 
+  /* FORMULAE
+   *     wait time = (time completed) - (time arrived)
+   * response time = (time of first run) - (time of arrival)
+   */
   printf("Average waiting time: %.2f\n", (float)total_waiting_time / (float)size);
   printf("Average response time: %.2f\n", (float)total_response_time / (float)size);
 
