@@ -22,7 +22,7 @@ struct process
 
   /* Additional fields here */
   u32 running_time; /* amount of time process has been running in total */
-  u32 time_last_ran;
+  /*u32 time_last_ran;*/
   /* End of "Additional fields here" */
 };
 
@@ -172,13 +172,13 @@ int main(int argc, char *argv[])
   /* initialize relevant values and add to queue */
   for(u32 i = 0; i < size; i++) {
 	  data[i].running_time = 0;
-	  data[i].time_last_ran = 0;
+	  /*data[i].time_last_ran = 0;
 
 	  u32 PID = data[i].pid;
 	  u32 arrival = data[i].arrival_time;
 	  u32 burst_time = data[i].burst_time;
 	  u32 running_time = data[i].running_time;
-	  u32 time_last_ran = data[i].time_last_ran;
+	  u32 time_last_ran = data[i].time_last_ran;*/
 	  /*printf("PID: %d\n\tarrival: %d\n\tburst_time: %d\n\trunning: %d\n\tlast ran: %d\n",
 			  PID, arrival, burst_time, running_time, time_last_ran);*/
 
@@ -206,10 +206,58 @@ int main(int argc, char *argv[])
 
   /*printf("\n");*/
   /* iterate through entire queue */
+  u32 time = 0;
+  struct process *current = TAILQ_FIRST(&list);
+  struct process *tail = TAILQ_FIRST(&list);
+  /*u32 current_running_time = 0;*/
   while(!TAILQ_EMPTY(&list)) {
-	  struct process *current = TAILQ_FIRST(&list);
-	  printf("PID: %d\n", current->pid);
-	  TAILQ_REMOVE(&list, current, pointers);
+	  /* get the next process to run */
+	  /*current = TAILQ_FIRST(&list);*/
+	  /*current_running_time = current->running_time;*/
+	  printf("Time: %d - %d\n\tPID: %d\n\tburst: %d\n\trunning: %d -> %d\n",
+			  time, time+quantum_length, current->pid, current->burst_time, current->running_time, (current->running_time)+quantum_length);
+
+	  /* retrieve response time */
+	  if(current->running_time == 0) {
+		  total_response_time += time - current->arrival_time;
+		  printf("\tretrieved response time\n");
+	  }
+
+	  /* run the process */
+	  current->running_time += quantum_length;
+	  time += quantum_length;
+
+	  /* check if another process spawned during this quantum */
+	  for (struct process *iter = TAILQ_NEXT(tail, pointers); iter != NULL; iter = TAILQ_NEXT(iter, pointers)) {
+		  if(iter->arrival_time < time) {
+			  tail = iter;
+		  }
+	  }
+	  printf("\ttail: %d\n", tail->pid);
+	  /*while ( (tail != NULL) && (tail->arrival_time < time) ){
+		  tail = TAILQ_NEXT(tail, pointers);
+	  }*/
+
+	  /* check if current process is done */
+	  printf("\tif: %s\n", current->running_time < current->burst_time ? "true" : "false");
+	  if (current->running_time < current->burst_time) {
+		  /*TAILQ_INSERT_AFTER(&list, tail, current, pointers);*/
+		  printf("\trunning time: %d\n", current->running_time);
+		  /*TAILQ_REMOVE(&list, TAILQ_FIRST(&list), pointers);*/
+		  printf("\tadded to end of queue\n");
+	  } else {
+		  u32 waiting_time = time - current->arrival_time - (current->running_time - current->burst_time);
+		  total_waiting_time += waiting_time;
+		  printf("\twaiting time: %d\n", waiting_time);
+		  TAILQ_REMOVE(&list, current, pointers);
+		  if (total_waiting_time > 100) exit(1);
+		  printf("\tremoved from queue\n");
+	  }
+	  /*TAILQ_REMOVE(&list, TAILQ_FIRST(&list), pointers);*/
+	  current = TAILQ_NEXT(current, pointers);
+	  if ( (current == NULL) || (current == TAILQ_NEXT(tail, pointers)) ) {
+		  current = TAILQ_FIRST(&list);
+	  }
   }
   
   /* End of "Your code here" */
