@@ -214,13 +214,13 @@ int main(int argc, char *argv[])
 	  /* get the next process to run */
 	  /*current = TAILQ_FIRST(&list);*/
 	  /*current_running_time = current->running_time;*/
-	  printf("Time: %d - %d\n\tPID: %d\n\tburst: %d\n\trunning: %d -> %d\n",
-			  time, time+quantum_length, current->pid, current->burst_time, current->running_time, (current->running_time)+quantum_length);
+	  /*printf("Time: %d - %d\n\tPID: %d\n\tburst: %d\n\trunning: %d -> %d\n",
+			  time, time+quantum_length, current->pid, current->burst_time, current->running_time, (current->running_time)+quantum_length);*/
 
 	  /* retrieve response time */
 	  if(current->running_time == 0) {
 		  total_response_time += time - current->arrival_time;
-		  printf("\tretrieved response time\n");
+		  /*printf("\tretrieved response time\n");*/
 	  }
 
 	  /* run the process */
@@ -233,25 +233,25 @@ int main(int argc, char *argv[])
 			  tail = iter;
 		  }
 	  }
-	  printf("\ttail: %d\n", tail->pid);
+	  /*printf("\ttail: %d\n", tail->pid);*/
 	  /*while ( (tail != NULL) && (tail->arrival_time < time) ){
 		  tail = TAILQ_NEXT(tail, pointers);
 	  }*/
 
 	  /* check if current process is done */
-	  printf("\tif: %s\n", current->running_time < current->burst_time ? "true" : "false");
+	  /*printf("\tif: %s\n", current->running_time < current->burst_time ? "true" : "false");*/
 	  if (current->running_time < current->burst_time) {
 		  /*TAILQ_INSERT_AFTER(&list, tail, current, pointers);*/
-		  printf("\trunning time: %d\n", current->running_time);
+		  /*printf("\trunning time: %d\n", current->running_time);*/
 		  /*TAILQ_REMOVE(&list, TAILQ_FIRST(&list), pointers);*/
-		  printf("\tadded to end of queue\n");
+		  /*printf("\tadded to end of queue\n");*/
 	  } else {
 		  u32 waiting_time = time - current->arrival_time - (current->running_time - current->burst_time);
 		  total_waiting_time += waiting_time;
-		  printf("\twaiting time: %d\n", waiting_time);
+		  /*printf("\twaiting time: %d\n", waiting_time);*/
 		  TAILQ_REMOVE(&list, current, pointers);
 		  if (total_waiting_time > 100) exit(1);
-		  printf("\tremoved from queue\n");
+		  /*printf("\tremoved from queue\n");*/
 	  }
 	  /*TAILQ_REMOVE(&list, TAILQ_FIRST(&list), pointers);*/
 	  current = TAILQ_NEXT(current, pointers);
