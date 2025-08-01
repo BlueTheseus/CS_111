@@ -153,8 +153,8 @@ int main(int argc, char *argv[])
   {
     return EINVAL;
   }
-  struct process *data;
-  u32 size;
+  struct process *data; /* array of processes */
+  u32 size; /* amount of elements in the array */
   init_processes(argv[1], &data, &size);
 
   u32 quantum_length = next_int_from_c_str(argv[2]);
@@ -166,6 +166,13 @@ int main(int argc, char *argv[])
   u32 total_response_time = 0;
 
   /* Your code here */
+
+  for(u32 i = 0; i < size; i++) {
+	  u32 PID = (data)[i].pid;
+	  u32 arrival = (data)[i].arrival_time;
+	  u32 burst_time = (data)[i].burst_time;
+	  printf("PID: %d\n\tarrival: %d\n\tburst_time: %d\n", PID, arrival, burst_time);
+  }
   
   /* End of "Your code here" */
 
