@@ -21,6 +21,8 @@ struct process
   TAILQ_ENTRY(process) pointers;
 
   /* Additional fields here */
+  u32 running_time; /* amount of time process has been running in total */
+  u32 time_last_ran;
   /* End of "Additional fields here" */
 };
 
@@ -167,11 +169,47 @@ int main(int argc, char *argv[])
 
   /* Your code here */
 
+  /* initialize relevant values and add to queue */
   for(u32 i = 0; i < size; i++) {
-	  u32 PID = (data)[i].pid;
-	  u32 arrival = (data)[i].arrival_time;
-	  u32 burst_time = (data)[i].burst_time;
-	  printf("PID: %d\n\tarrival: %d\n\tburst_time: %d\n", PID, arrival, burst_time);
+	  data[i].running_time = 0;
+	  data[i].time_last_ran = 0;
+
+	  u32 PID = data[i].pid;
+	  u32 arrival = data[i].arrival_time;
+	  u32 burst_time = data[i].burst_time;
+	  u32 running_time = data[i].running_time;
+	  u32 time_last_ran = data[i].time_last_ran;
+	  /*printf("PID: %d\n\tarrival: %d\n\tburst_time: %d\n\trunning: %d\n\tlast ran: %d\n",
+			  PID, arrival, burst_time, running_time, time_last_ran);*/
+
+	  if(TAILQ_EMPTY(&list)){
+		  /*printf("\tadding to head of queue...");*/
+		  TAILQ_INSERT_HEAD(&list, &data[i], pointers);
+		  /*printf("done\n");*/
+		  continue;
+	  }
+
+
+	  struct process *iterator = TAILQ_LAST(&list, process_list);
+	  do {
+		  if(data[i].arrival_time > iterator->arrival_time) {
+			  /*printf("\tadding to queue...");*/
+			  TAILQ_INSERT_AFTER(&list, iterator, &data[i], pointers);
+			  /*printf("done\n");*/
+			  break;
+		  }
+		  /*printf("\titerating...");*/
+		  iterator = TAILQ_PREV(iterator, process_list, pointers);
+		  /*printf("done\n");*/
+	  } while( (iterator != TAILQ_FIRST(&list)) && (iterator != NULL) );
+  }
+
+  /*printf("\n");*/
+  /* iterate through entire queue */
+  while(!TAILQ_EMPTY(&list)) {
+	  struct process *current = TAILQ_FIRST(&list);
+	  printf("PID: %d\n", current->pid);
+	  TAILQ_REMOVE(&list, current, pointers);
   }
   
   /* End of "Your code here" */
@@ -184,5 +222,5 @@ int main(int argc, char *argv[])
   printf("Average response time: %.2f\n", (float)total_response_time / (float)size);
 
   free(data);
-  return 0;
+return 0;
 }
